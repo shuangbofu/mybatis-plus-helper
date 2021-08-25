@@ -8,9 +8,22 @@ import io.github.shuangbofu.helper.entity.IdEntity;
 import io.github.shuangbofu.helper.handler.UpdateHandler;
 import io.github.shuangbofu.helper.hook.DaoHook;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LogicalDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTITY>> extends AbstractDao<ENTITY, MAPPER> {
+
+    private static Field sqlSet;
+
+    static {
+        try {
+            sqlSet = UpdateWrapper.class.getDeclaredField("sqlSet");
+            sqlSet.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
 
     private final String name;
     private final String valid;
@@ -38,8 +51,17 @@ public class LogicalDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTIT
     @Override
     public int deleteBy(UpdateHandler<ENTITY> handler) {
         return updateBy(i -> {
-            i.set(name, inValid);
             handler.accept(i);
+            clearSqlSet(i);
+            i.set(name, inValid);
         });
+    }
+
+    private void clearSqlSet(UpdateWrapper<ENTITY> uw) {
+        try {
+            sqlSet.set(uw, new ArrayList<>());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }
