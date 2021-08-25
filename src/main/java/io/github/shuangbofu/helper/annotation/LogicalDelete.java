@@ -8,11 +8,11 @@ import java.lang.annotation.*;
 @Inherited
 public @interface LogicalDelete {
 
-    String name() default "status";
+    String name() default "deleted";
 
-    String valid() default "1";
+    String valid() default "0";
 
-    String inValid() default "0";
+    String inValid() default "1";
 
     boolean active() default true;
 }
