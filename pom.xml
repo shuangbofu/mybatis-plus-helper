@@ -4,9 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>mybatis-plus-helper</artifactId>
     <packaging>pom</packaging>
-    <modules>
-        <module>example</module>
-    </modules>
     <groupId>io.github.shuangbo</groupId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -30,8 +27,8 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.3.9</version>
-            <scope>${spring.mvc.version}</scope>
+            <version>${spring.mvc.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
