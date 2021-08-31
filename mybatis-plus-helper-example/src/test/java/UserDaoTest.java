@@ -24,6 +24,8 @@ public class UserDaoTest {
     public void test() {
         List<User> users = userDao.selectAll();
         List<String> names = userDao.selectValueListBy(User::getName, i -> i.lambda().like(User::getName, "%john%"));
+
+        userDao.existThrow(i -> i.lambda().eq(User::getId, 1L), () -> new RuntimeException("error"));
         System.out.println(names);
     }
 }
