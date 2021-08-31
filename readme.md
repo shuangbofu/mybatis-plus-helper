@@ -39,8 +39,8 @@ String userId=Optional.ofNullable(
 
 // 包装后的userDao
         String userId=userDao.selectValueBy(
-				User::getUserId, i->i.lambda()
-        .like(Task::getName,"%john%",() => ""));
+        User::getUserId,i->i.lambda()
+        .like(Task::getName,"%john%",()=>""));
 ```
 
 2、mybatis-plus全局参数和逻辑删除还都是全局的，不能每个表/entity自定义。
@@ -58,6 +58,7 @@ String userId=Optional.ofNullable(
 引入mybatisplus-helper
 
 ```xml
+
 <dependencies>
     <dependency>
         <artifactId>mybatis-plus-helper</artifactId>
@@ -368,6 +369,34 @@ public interface BaseDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTI
     ENTITY selectOneBy(QueryHandler<ENTITY> queryHandler);
 
     /**
+     * 根据条件查找单条记录
+     *
+     * @param id 主键ID
+     * @return optional
+     */
+    Optional<ENTITY> selectOneOptionalById(Long id);
+
+    /**
+     * 存在则抛出异常
+     *
+     * @param queryHandler      查询条件
+     * @param exceptionSupplier 异常supplier
+     * @param <E>               异常类型
+     * @throws DaoException dao异常
+     */
+    <E extends RuntimeException> void existThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException;
+
+    /**
+     * 不存在则抛出异常
+     *
+     * @param queryHandler      查询条件
+     * @param exceptionSupplier 异常supplier
+     * @param <E>               异常类型
+     * @throws DaoException dao异常
+     */
+    <E extends RuntimeException> void notExistThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException;
+
+    /**
      * 根据id查找单条记录
      *
      * @param id id
@@ -474,6 +503,14 @@ public interface BaseDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTI
      * @return 更新影响条数
      */
     int updateEntityById(ENTITY entity, Long id);
+
+    /**
+     * 根据实体id更新实体
+     *
+     * @param entity 实体
+     * @return 更新影响条数
+     */
+    int updateEntityById(ENTITY entity);
 
     /**
      * 根据id更新值

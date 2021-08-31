@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import io.github.shuangbofu.helper.entity.IdEntity;
+import io.github.shuangbofu.helper.exception.DaoException;
 import io.github.shuangbofu.helper.handler.QueryHandler;
 import io.github.shuangbofu.helper.handler.UpdateHandler;
 import io.github.shuangbofu.helper.hook.DaoHook;
@@ -89,6 +90,23 @@ public abstract class AbstractDao<ENTITY extends IdEntity, MAPPER extends BaseMa
     }
 
     @Override
+    public Optional<ENTITY> selectOneOptionalById(Long id) {
+        return Optional.ofNullable(selectOneById(id));
+    }
+
+    @Override
+    public <E extends RuntimeException> void existThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException {
+        long count = countBy(queryHandler);
+        Optional.of(count).filter(i -> count == 0).orElseThrow(exceptionSupplier);
+    }
+
+    @Override
+    public <E extends RuntimeException> void notExistThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException {
+        long count = countBy(queryHandler);
+        Optional.of(count).filter(i -> count > 0).orElseThrow(exceptionSupplier);
+    }
+
+    @Override
     public ENTITY selectOneById(Long id) {
         return selectOneBy(q -> q.eq(IdEntity.ID, id));
     }
@@ -154,16 +172,20 @@ public abstract class AbstractDao<ENTITY extends IdEntity, MAPPER extends BaseMa
 
     @Override
     public int updateEntityById(ENTITY entity, Long id) {
-        return updateEntityBy(entity, i -> {
-            i.eq(IdEntity.ID, id);
-        });
+        return updateEntityBy(entity, i -> i.eq(IdEntity.ID, id));
+    }
+
+    @Override
+    public int updateEntityById(ENTITY entity) {
+        if (entity == null) {
+            return 0;
+        }
+        return updateEntityById(entity, entity.getId());
     }
 
     @Override
     public <V> int updateValueById(Long id, SFunction<ENTITY, V> sFunction, V value) {
-        return updateById(id, i -> {
-            i.lambda().set(sFunction, value);
-        });
+        return updateById(id, i -> i.lambda().set(sFunction, value));
     }
 
     @Override

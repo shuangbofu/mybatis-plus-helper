@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.shuangbofu.helper.entity.IdEntity;
+import io.github.shuangbofu.helper.exception.DaoException;
 import io.github.shuangbofu.helper.handler.QueryHandler;
 import io.github.shuangbofu.helper.handler.UpdateHandler;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public interface BaseDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTITY>> {
@@ -29,6 +31,34 @@ public interface BaseDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTI
      * @return 单条记录
      */
     ENTITY selectOneBy(QueryHandler<ENTITY> queryHandler);
+
+    /**
+     * 根据条件查找单条记录
+     *
+     * @param id 主键ID
+     * @return optional
+     */
+    Optional<ENTITY> selectOneOptionalById(Long id);
+
+    /**
+     * 存在则抛出异常
+     *
+     * @param queryHandler      查询条件
+     * @param exceptionSupplier 异常supplier
+     * @param <E>               异常类型
+     * @throws DaoException dao异常
+     */
+    <E extends RuntimeException> void existThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException;
+
+    /**
+     * 不存在则抛出异常
+     *
+     * @param queryHandler      查询条件
+     * @param exceptionSupplier 异常supplier
+     * @param <E>               异常类型
+     * @throws DaoException dao异常
+     */
+    <E extends RuntimeException> void notExistThrow(QueryHandler<ENTITY> queryHandler, Supplier<E> exceptionSupplier) throws DaoException;
 
     /**
      * 根据id查找单条记录
@@ -137,6 +167,14 @@ public interface BaseDao<ENTITY extends IdEntity, MAPPER extends BaseMapper<ENTI
      * @return 更新影响条数
      */
     int updateEntityById(ENTITY entity, Long id);
+
+    /**
+     * 根据实体id更新实体
+     *
+     * @param entity 实体
+     * @return 更新影响条数
+     */
+    int updateEntityById(ENTITY entity);
 
     /**
      * 根据id更新值
